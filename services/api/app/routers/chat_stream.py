@@ -62,7 +62,7 @@ def ui_stream(events: AsyncIterator[dict], sources_fn=lambda: []) -> StreamingRe
             yield _sse({"type": "text-end", "id": text_id})
             for s in sources_fn():
                 yield _sse({"type": "data-source", "id": s["id"], "data": s})
-            yield _sse({"type": "finish"})
+            yield _sse({"type": "finish", "finishReason": "stop"})
             yield "data: [DONE]\n\n"
 
     return StreamingResponse(gen(), media_type="text/event-stream", headers=HEADERS)

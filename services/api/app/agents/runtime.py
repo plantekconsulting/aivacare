@@ -40,6 +40,9 @@ def _label(tool_name: str) -> str:
 
 async def run_agent(system: str, history: list[dict], gateway: FastMCP, effort: str = "low") -> AsyncIterator[dict]:
     model = settings.model_main
+    if not llm.available():
+        yield {"type": "error", "message": "The AI assistant isn't configured yet (missing Claude API key)."}
+        return
     async with Client(gateway) as mcp:
         tools = [
             {"name": t.name, "description": t.description or "", "input_schema": t.input_schema, "eager_input_streaming": True}
