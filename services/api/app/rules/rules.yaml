@@ -1,0 +1,78 @@
+# AivaCare clinical rule catalog (DEMO - requires clinician review before clinical use)
+# Rules are deterministic and versioned. AI never decides whether a rule fires.
+version: "2026.10-demo"
+
+sla_hours:
+  high: 24
+  medium: 72
+  low: 168
+
+rules:
+  - id: fib4_high
+    metric: FIB4
+    kind: above
+    threshold: 2.67
+    priority: high
+    title: "FIB-4 above 2.67 - high risk of advanced fibrosis"
+    suggested_action: "Review within 24h. Consider transient elastography (FibroScan) and hepatology follow-up."
+
+  - id: fib4_indeterminate
+    metric: FIB4
+    kind: between
+    threshold: [1.3, 2.67]
+    priority: medium
+    title: "FIB-4 indeterminate (1.3-2.67)"
+    suggested_action: "Consider second-line test (ELF or elastography) at next visit."
+
+  - id: alt_above_3x_uln
+    metric: ALT
+    kind: above
+    threshold: 120
+    priority: high
+    title: "ALT above 3x upper limit of normal"
+    suggested_action: "Review within 24h. Assess for alcohol, medication or other causes."
+
+  - id: alt_doubled_from_baseline
+    metric: ALT
+    kind: ratio_to_baseline
+    threshold: 2.0
+    priority: medium
+    title: "ALT doubled from patient baseline"
+    suggested_action: "Review trend. Reinforce lifestyle plan; consider repeat LFTs in 4 weeks."
+
+  - id: weight_gain_30d
+    metric: WEIGHT
+    kind: pct_change_30d
+    threshold: 3.0
+    priority: low
+    title: "Weight up more than 3% in 30 days"
+    suggested_action: "Care coordinator outreach; dietitian check-in."
+
+  - id: resting_hr_rise
+    metric: RHR
+    kind: rise_vs_baseline
+    threshold: 8
+    priority: low
+    title: "Resting heart rate up >8 bpm vs. baseline"
+    suggested_action: "Check symptoms, sleep, and medication adherence."
+
+  - id: activity_drop
+    metric: STEPS
+    kind: drop_pct_vs_baseline
+    threshold: 50
+    priority: low
+    title: "Daily activity down >50% vs. baseline"
+    suggested_action: "Engagement nudge; ask about barriers to activity."
+
+# Red-flag symptoms bypass the AI entirely and trigger an urgent escalation.
+red_flags:
+  - term: jaundice
+    patterns: ["jaundice", "yellow eyes", "eyes look yellow", "eyes are yellow", "yellow skin", "skin is yellow", "skin looks yellow"]
+  - term: gi_bleed
+    patterns: ["vomiting blood", "vomited blood", "throwing up blood", "blood in vomit", "black stool", "black stools", "tarry stool", "black poop"]
+  - term: confusion
+    patterns: ["confused", "confusion", "disoriented", "can't think straight", "cannot think straight"]
+  - term: ascites
+    patterns: ["belly swelling", "abdomen swelling", "swollen belly", "swollen abdomen", "stomach is swollen"]
+  - term: severe_pain
+    patterns: ["severe abdominal pain", "severe stomach pain", "worst pain"]

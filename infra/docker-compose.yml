@@ -1,0 +1,80 @@
+name: aivacare
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: aivacare
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aivacare}
+      POSTGRES_DB: aivacare
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aivacare"]
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+
+  fhir:
+    image: hapiproject/hapi:latest
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xmx1536m"
+      hapi.fhir.fhir_version: R4
+      hapi.fhir.expunge_enabled: "true"
+      hapi.fhir.allow_multiple_delete: "true"
+      hapi.fhir.reuse_cached_search_results_millis: "0"
+      hapi.fhir.cors.allowed_origin: "*"
+    ports:
+      - "8090:8080"
+    restart: unless-stopped
+
+  api:
+    build: ../services/api
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://aivacare:${POSTGRES_PASSWORD:-aivacare}@postgres:5432/aivacare
+      FHIR_BASE_URL: http://fhir:8080/fhir
+    depends_on:
+      postgres:
+        condition: service_healthy
+      fhir:
+        condition: service_started
+    ports:
+      - "8710:8000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ../apps/web
+      args:
+        NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:8710}
+    environment:
+      NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:8710}
+    depends_on:
+      - api
+    ports:
+      - "3710:3000"
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    profiles: ["cloud"]
+    environment:
+      APP_HOST: ${APP_HOST:-localhost}
+      API_HOST: ${API_HOST:-api.localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+      - api
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  caddy_data:
