@@ -16,9 +16,10 @@ export function getApiUrl() {
   return apiUrl;
 }
 
-export async function signIn(url: string) {
+export async function signIn(url: string, code: string) {
   apiUrl = url.replace(/\/$/, "");
-  const r = await fetch(`${apiUrl}/login/john`, { method: "POST" });
+  const r = await fetch(`${apiUrl}/login/john?code=${encodeURIComponent(code.trim())}`, { method: "POST" });
+  if (r.status === 403) throw new Error("Invalid access code");
   if (!r.ok) throw new Error(`Login failed (${r.status})`);
   token = (await r.json()).token;
   await SecureStore.setItemAsync("apiUrl", apiUrl);

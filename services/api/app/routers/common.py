@@ -1,11 +1,13 @@
 """Auth, personas and the live event stream."""
 import asyncio
+import hmac
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from .. import events
 from ..auth import User, current_user, issue_token
+from ..config import settings
 from ..seed.generate import PERSONAS
 
 router = APIRouter()
@@ -17,7 +19,12 @@ async def personas() -> list[dict]:
 
 
 @router.post("/login/{persona}")
-async def login(persona: str) -> dict:
+async def login(persona: str, code: str = "") -> dict:
+    """Team access gate: when DEMO_ACCESS_CODE is set, sign-in requires it."""
+    if settings.access_code and not hmac.compare_digest(code, settings.access_code):
+        raise HTTPException(403, "Invalid access code")
+    if persona not in PERSONAS:
+        raise HTTPException(404, "Unknown persona")
     p = PERSONAS[persona]
     return {"token": issue_token(persona), "role": p["role"], "name": p["name"], "sub": p["sub"]}
 

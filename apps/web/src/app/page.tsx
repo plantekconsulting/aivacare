@@ -2,9 +2,9 @@
 
 import { HeartPulse, LayoutDashboard, Settings2, Stethoscope } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Logo } from "@/components/ui";
-import { closeLive, login } from "@/lib/api";
+import { closeLive, getAccessCode, login, setAccessCode } from "@/lib/api";
 
 const PERSONAS = [
   { key: "john", name: "John Miller", title: "Patient, 48 - MASLD", href: "/patient", Icon: HeartPulse, desc: "Patient portal: trends, AI assistant, report upload, care plan" },
@@ -17,16 +17,19 @@ export default function Home() {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  useEffect(() => setCode(getAccessCode()), []);
 
   const pick = async (p: (typeof PERSONAS)[number]) => {
     setBusy(p.key);
     setErr(null);
     try {
       closeLive();
+      setAccessCode(code.trim());
       await login(p.key);
       router.push(p.href);
-    } catch {
-      setErr("Could not reach the AivaCare API.");
+    } catch (e) {
+      setErr((e as Error).message);
       setBusy(null);
     }
   };
@@ -39,7 +42,17 @@ export default function Home() {
         AI agents monitor patient health between visits, give personalized, clinician-approved guidance, and bring the right
         findings to the care team - with physicians approving every clinical decision.
       </p>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      <label className="mt-8 flex max-w-xs flex-col gap-1 text-xs font-medium text-stone-600">
+        Team access code
+        <input
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          type="password"
+          placeholder="Enter the code you were given"
+          className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none focus:border-teal-600"
+        />
+      </label>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {PERSONAS.map((p) => (
           <button
             key={p.key}

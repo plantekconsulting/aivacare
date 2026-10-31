@@ -83,6 +83,7 @@ export default function App() {
 
 function Login({ onDone }: { onDone: () => void }) {
   const [url, setUrl] = useState(getApiUrl());
+  const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   return (
@@ -92,6 +93,8 @@ function Login({ onDone }: { onDone: () => void }) {
       <Text style={{ color: "#57534e" }}>Continuous care for your liver health, between every visit.</Text>
       <Text style={s.label}>Server</Text>
       <TextInput value={url} onChangeText={setUrl} autoCapitalize="none" autoCorrect={false} style={s.input} />
+      <Text style={s.label}>Team access code</Text>
+      <TextInput value={code} onChangeText={setCode} secureTextEntry autoCapitalize="none" style={s.input} />
       <Pressable
         style={[s.button, busy && { opacity: 0.6 }]}
         disabled={busy}
@@ -99,7 +102,7 @@ function Login({ onDone }: { onDone: () => void }) {
           setBusy(true);
           setErr(null);
           try {
-            await signIn(url);
+            await signIn(url, code);
             onDone();
           } catch (e) {
             setErr((e as Error).message);

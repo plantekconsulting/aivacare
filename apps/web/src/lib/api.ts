@@ -19,9 +19,13 @@ export function setSession(s: Session | null) {
   else localStorage.removeItem(KEY);
 }
 
+export const getAccessCode = () => (typeof window === "undefined" ? "" : localStorage.getItem("aivacare.code") ?? "");
+export const setAccessCode = (c: string) => localStorage.setItem("aivacare.code", c);
+
 export async function login(persona: string): Promise<Session> {
-  const r = await fetch(`${API_URL}/login/${persona}`, { method: "POST" });
-  if (!r.ok) throw new Error("Login failed");
+  const r = await fetch(`${API_URL}/login/${persona}?code=${encodeURIComponent(getAccessCode())}`, { method: "POST" });
+  if (r.status === 403) throw new Error("Invalid access code");
+  if (!r.ok) throw new Error("Could not reach the AivaCare API.");
   const s = (await r.json()) as Session;
   setSession(s);
   return s;
