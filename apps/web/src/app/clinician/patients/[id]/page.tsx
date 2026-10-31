@@ -5,7 +5,7 @@ import Link from "next/link";
 import { use, useMemo } from "react";
 import { AlertReview } from "@/components/AlertReview";
 import { Chat } from "@/components/Chat";
-import { FIB4_BANDS, StatTile, TrendChart, fib4Status } from "@/components/charts";
+import { fib4Bands, StatTile, TrendChart, fib4Status } from "@/components/charts";
 import { Card } from "@/components/ui";
 import { useLive } from "@/lib/api";
 import type { Patient360 } from "@/lib/types";
@@ -63,7 +63,7 @@ export default function PatientView({ params }: { params: Promise<{ id: string }
               <TrendChart series={[{ key: "ALT", label: "ALT", points: series.ALT, unit: "U/L" }, { key: "AST", label: "AST", points: series.AST, unit: "U/L" }]} goal={{ value: 40, label: "ULN 40" }} />
             </Card>
             <Card title="FIB-4">
-              <TrendChart series={[{ key: "FIB4", label: "FIB-4", points: series.FIB4 }]} bands={FIB4_BANDS} domain={[0, 5]} decimals={2} />
+              <TrendChart series={[{ key: "FIB4", label: "FIB-4", points: series.FIB4 }]} bands={fib4Bands(5)} domain={[0, 5]} decimals={2} />
             </Card>
             <Card title="Weight (kg) - Apple Watch / scale">
               <TrendChart series={[{ key: "WEIGHT", label: "Weight", points: series.WEIGHT.slice(-120), unit: "kg" }]} decimals={1} />

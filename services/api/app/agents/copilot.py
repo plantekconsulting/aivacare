@@ -54,7 +54,7 @@ async def review_alert(patient_id: str, hits: list[dict]) -> dict:
     # Deterministic fallback keeps the demo working without the LLM.
     return {
         "headline": f"{hits[0]['title']} for {prof['name']}.",
-        "summary_bullets": [f"{h['title']}: value {h['value']}" for h in hits]
+        "summary_bullets": [h["title"] if h["metric"] == "SYMPTOM" else f"{h['title']}: value {h['value']}" for h in hits]
         + [f"ALT trend: {_trend_line(s['ALT'], 3)}", f"Weight trend: {_trend_line(s['WEIGHT'], 3)}"],
         "suggested_actions": list(dict.fromkeys(h["suggested_action"] for h in hits)),
         "rationale": "Per rule catalog suggested actions [P1].",

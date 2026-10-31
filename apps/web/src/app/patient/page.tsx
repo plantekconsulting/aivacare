@@ -2,7 +2,7 @@
 
 import { ClipboardList, MessageCircleHeart } from "lucide-react";
 import Link from "next/link";
-import { FIB4_BANDS, StatTile, TrendChart, fib4Status } from "@/components/charts";
+import { fib4Bands, StatTile, TrendChart, fib4Status } from "@/components/charts";
 import { Card } from "@/components/ui";
 import { useLive } from "@/lib/api";
 import type { Patient360 } from "@/lib/types";
@@ -42,7 +42,7 @@ export default function PatientHome() {
           <TrendChart series={[{ key: "ALT", label: "ALT", points: series.ALT, unit: "U/L" }, { key: "AST", label: "AST", points: series.AST, unit: "U/L" }]} goal={{ value: 40, label: "ALT upper normal 40" }} />
         </Card>
         <Card title="FIB-4 fibrosis risk score">
-          <TrendChart series={[{ key: "FIB4", label: "FIB-4", points: series.FIB4 }]} bands={FIB4_BANDS} domain={[0, 4]} decimals={2} />
+          <TrendChart series={[{ key: "FIB4", label: "FIB-4", points: series.FIB4 }]} bands={fib4Bands(4)} domain={[0, 4]} decimals={2} />
         </Card>
         <Card title="Weight (kg) - from your watch & scale">
           <TrendChart series={[{ key: "WEIGHT", label: "Weight", points: series.WEIGHT, unit: "kg" }]} decimals={1} />

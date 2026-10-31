@@ -144,8 +144,8 @@ export function fib4Status(v: number | undefined): { tone: keyof typeof STATUS; 
   return { tone: "good", text: "Low risk" };
 }
 
-export const FIB4_BANDS: Band[] = [
+export const fib4Bands = (max: number): Band[] => [
   { from: 0, to: 1.3, label: "Low <1.3", tone: "good" },
-  { from: 1.3, to: 2.67, label: "Indeterminate", tone: "warning" },
-  { from: 2.67, to: 6, label: "High >2.67", tone: "critical" },
+  { from: 1.3, to: 2.67, label: "Indeterminate 1.3-2.67", tone: "warning" },
+  { from: 2.67, to: max, label: "High >2.67", tone: "critical" },
 ];
