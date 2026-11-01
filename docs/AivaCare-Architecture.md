@@ -6,7 +6,7 @@
 | **Client** | LiverWell Clinic |
 | **Domain** | Fatty liver disease (MASLD / MASH) |
 | **Version** | 1.0 - roadshow prototype |
-| **Date** | 31 October 2026 |
+| **Date** | 1 November 2026 |
 | **Status** | Prototype on synthetic data. Not for clinical use. |
 
 ---
@@ -78,16 +78,22 @@ AivaCare is a secure, multi-agent AI platform with three entry points: a **patie
 ### 4.1 End-to-end patient journey
 
 ```mermaid
-flowchart LR
-  A["Enrollment and Consent"] --> B["EMR Data Import"]
-  B --> C["Medical Report Upload"]
-  C --> D["Wearable Data Sync"]
-  D --> E["AI Patient Assistant"]
-  E --> F["Continuous Monitoring"]
-  F -->|"Threshold breached"| G["Clinical Escalation"]
-  G --> H["Clinician Review and Approval"]
-  H --> I["Care Follow-up"]
-  I --> D
+flowchart TB
+  subgraph ON["Onboarding"]
+    direction LR
+    A["Enrollment and Consent"] --> B["EMR Data Import"] --> C["Medical Report Upload"]
+  end
+  subgraph DAY["Every day"]
+    direction LR
+    D["Wearable Data Sync"] --> E["AI Patient Assistant"] --> F["Continuous Monitoring"]
+  end
+  subgraph ACT["When a threshold is breached"]
+    direction LR
+    G["Clinical Escalation"] --> H["Clinician Review and Approval"] --> I["Care Follow-up"]
+  end
+  ON --> DAY
+  DAY -->|"Threshold breached"| ACT
+  ACT -->|"Updated care plan"| DAY
 ```
 
 ### 4.2 Medical report upload
@@ -199,39 +205,36 @@ flowchart LR
 ```mermaid
 flowchart TB
   subgraph EXP["Experience"]
-    E1["Patient Mobile App - Expo"]
-    E2["Patient Web Portal - Next.js"]
-    E3["Clinician Dashboard - Next.js"]
+    direction LR
+    E1["Patient Mobile App - Expo"] ~~~ E2["Patient Web Portal - Next.js"] ~~~ E3["Clinician Dashboard - Next.js"]
   end
   subgraph ACC["Access"]
-    A1["Identity - JWT now, OIDC in production"]
-    A2["API - FastAPI, SSE live updates"]
+    direction LR
+    A1["Identity - JWT now, OIDC in production"] ~~~ A2["API - FastAPI, SSE live updates"]
   end
   subgraph AGT["Agents"]
-    G1["Patient Care Agent"]
-    G2["Clinician Copilot Agent"]
-    G3["Guardrails"]
-  end
-  subgraph TOOL["Tool Layer - FastMCP"]
-    T1["fhir"]
-    T2["knowledge"]
-    T3["insights"]
-    T4["workflow"]
-    T5["document"]
+    direction LR
+    G1["Patient Care Agent"] ~~~ G2["Clinician Copilot Agent"] ~~~ G3["Guardrails"]
   end
   subgraph CORE["Deterministic Core"]
-    C1["Ingestion and Normalization"]
-    C2["Rules Engine"]
-    C3["Escalation Workflow - LangGraph"]
-    C4["Notifications"]
+    direction LR
+    C1["Ingestion"] ~~~ C2["Rules Engine"] ~~~ C3["Escalation Workflow - LangGraph"] ~~~ C4["Notifications"]
+  end
+  subgraph TOOL["Tool Layer - FastMCP"]
+    direction LR
+    T1["fhir"] ~~~ T2["knowledge"] ~~~ T3["insights"] ~~~ T4["workflow"] ~~~ T5["document"]
   end
   subgraph DATA["Data"]
-    D1[("HAPI FHIR R4")]
-    D2[("PostgreSQL + pgvector")]
+    direction LR
+    D1[("HAPI FHIR R4")] ~~~ D2[("PostgreSQL + pgvector")]
   end
-  EXP --> ACC --> AGT --> TOOL --> DATA
-  ACC --> CORE --> DATA
-  CORE --> AGT
+  EXP --> ACC
+  ACC --> AGT
+  ACC --> CORE
+  CORE -->|"alert review"| AGT
+  AGT --> TOOL
+  TOOL --> DATA
+  CORE --> DATA
 ```
 
 ### 5.3 Technology stack
@@ -310,6 +313,7 @@ When no approved content matches, the assistant says so and offers to contact th
 | Identity | Demo personas, signed JWT, role checks | OIDC SSO (e.g. Keycloak or Identity Platform), MFA for clinicians, SMART on FHIR launch from the EMR |
 | Data protection | Synthetic data only, HTTPS | Encryption at rest with customer-managed keys, PHI redaction in logs, minimum-necessary data sent to the LLM |
 | AI safety | Red-flag bypass, scope and injection classifier, citations, draft-only clinical writes | Plus evaluation suites in CI, red-team tests, sampled clinician review |
+| Secrets and LLM credentials | Claude API key in a root-only env file on the VM; workspace spend cap; access-code gate on sign-in | Workload Identity Federation (short-lived tokens issued to the service's cloud identity, no static API keys); Secret Manager for remaining secrets |
 | Audit | Audit log table | FHIR AuditEvent and Provenance, immutable log storage |
 | Regulatory | Not applicable (demo) | HIPAA safeguards and BAAs (hosting and LLM provider); non-device CDS positioning under FDA guidance; ONC HTI-1 transparency |
 

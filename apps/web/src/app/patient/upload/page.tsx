@@ -56,7 +56,10 @@ export default function UploadPage() {
           <span className="text-xs text-stone-500">PDF, PNG or JPEG up to 15 MB</span>
           <input type="file" accept="application/pdf,image/png,image/jpeg" className="hidden" onChange={(e) => { setFile(e.target.files?.[0] ?? null); setStage("idle"); setExt(null); setSaved(null); }} />
         </label>
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <a href="/samples/john-miller-liver-panel.pdf" download className="text-xs text-teal-800 underline">
+            No report handy? Download a sample (synthetic)
+          </a>
           <Button onClick={read} disabled={!file || stage === "reading"}>
             {stage === "reading" ? <><Loader2 size={16} className="animate-spin" /> Reading report…</> : <><FileText size={16} /> Read report</>}
           </Button>
