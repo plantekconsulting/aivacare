@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8710";
 
-export type Session = { token: string; role: "patient" | "clinician" | "admin"; name: string; sub: string };
+export type Session = { token: string; role: "patient" | "clinician" | "admin"; name: string; sub: string; can_approve?: boolean };
 
 const KEY = "aivacare.session";
 

@@ -190,7 +190,7 @@ def build_bundles() -> list[list[dict]]:
 
 PERSONAS = {
     "john": {"sub": JOHN, "role": "patient", "name": "John Miller", "title": "Patient, 48"},
-    "dr-patel": {"sub": PRACTITIONER_ID, "role": "clinician", "name": "Dr. Anika Patel", "title": "Hepatologist"},
+    "dr-patel": {"sub": PRACTITIONER_ID, "role": "clinician", "name": "Dr. Anika Patel", "title": "Hepatologist", "can_approve": True},
     "coordinator": {"sub": "coord-sam-lee", "role": "clinician", "name": "Sam Lee, RN", "title": "Care Coordinator"},
     "admin": {"sub": "admin", "role": "admin", "name": "Demo Admin", "title": "Presenter controls"},
 }

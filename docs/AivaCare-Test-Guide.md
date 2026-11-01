@@ -23,8 +23,8 @@
 | Persona | Role | Lands on |
 |---|---|---|
 | **John Miller** | Patient, 48, fatty liver disease (MASLD) | Patient portal |
-| **Dr. Anika Patel** | Hepatologist | Clinician dashboard |
-| **Sam Lee, RN** | Care coordinator | Clinician dashboard |
+| **Dr. Anika Patel** | Hepatologist - the only persona that can approve or dismiss clinical actions | Clinician dashboard |
+| **Sam Lee, RN** | Care coordinator - triages and acknowledges alerts, but can't approve | Clinician dashboard |
 | **Demo Admin** | Presenter controls | Admin page |
 
 **The environment is shared.** Everyone sees the same patients. Actions marked **⚠ changes data** affect every tester:
@@ -120,7 +120,7 @@ Open a second window (Incognito) signed in as **Dr. Anika Patel** on the **alert
 |---|---|---|---|
 | X-01 | As Dr. Patel, open **Rules & audit** (governance). *(read-only)* | The versioned rule catalog (FIB-4 1.3 / 2.67, ALT rules, weight, heart rate, activity) and an audit trail of recent actions, including your approval. | ☐ Pass<br>☐ Fail |
 | X-02 | As Dr. Patel, open **Copilot** from the menu (no patient selected) and ask: *"Which patients need attention first?"* *(read-only)* | A prioritised list drawn from the open alerts, naming patients and reasons. | ☐ Pass<br>☐ Fail |
-| X-03 | Sign in as **Sam Lee, RN**. *(read-only)* | Same dashboard and alert queue as Dr. Patel. | ☐ Pass<br>☐ Fail |
+| X-03 | Sign in as **Sam Lee, RN** and open any open alert. *(read-only)* | Same queue, Patient 360, AI review and Copilot as Dr. Patel. **Acknowledge** is available, but in place of Approve and Dismiss Sam sees **"Awaiting physician approval"**, and the proposed actions can't be edited. | ☐ Pass<br>☐ Fail |
 | X-04 | As Demo Admin, click **Advance 14 days**. ⚠ changes data | John's wearable charts extend by 14 days (weight up, steps down). Low-priority alerts (e.g. activity drop, weight gain) may appear in the queue. | ☐ Pass<br>☐ Fail |
 | X-05 | While signed in as John, change the address to `/clinician`. | You are sent back to the home page; patients can't open the clinician dashboard. | ☐ Pass<br>☐ Fail |
 | X-06 | As John, ask the assistant a question its approved content doesn't cover, e.g. *"Is intermittent fasting with a keto diet safe for me?"* | It says what the approved guidance covers (or that it doesn't have approved information) and suggests asking the care team; it doesn't invent advice. | ☐ Pass<br>☐ Fail |

@@ -16,6 +16,11 @@ class User:
     name: str
 
 
+def can_approve(user: "User") -> bool:
+    """Physicians sign off clinical decisions; coordinators triage and prepare."""
+    return any(p["sub"] == user.sub and p.get("can_approve") for p in PERSONAS.values())
+
+
 def issue_token(persona: str) -> str:
     p = PERSONAS[persona]
     payload = {"sub": p["sub"], "role": p["role"], "name": p["name"],

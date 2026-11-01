@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from .. import events
-from ..auth import User, current_user, issue_token
+from ..auth import User, can_approve, current_user, issue_token
 from ..config import settings
 from ..seed.generate import PERSONAS
 
@@ -45,12 +45,12 @@ async def login(persona: str, request: Request, code: str = "") -> dict:
     if persona not in PERSONAS:
         raise HTTPException(404, "Unknown persona")
     p = PERSONAS[persona]
-    return {"token": issue_token(persona), "role": p["role"], "name": p["name"], "sub": p["sub"]}
+    return {"token": issue_token(persona), "role": p["role"], "name": p["name"], "sub": p["sub"], "can_approve": bool(p.get("can_approve"))}
 
 
 @router.get("/me")
 async def me(user: User = Depends(current_user)) -> dict:
-    return user.__dict__
+    return {**user.__dict__, "can_approve": can_approve(user)}
 
 
 @router.get("/events")

@@ -1,8 +1,8 @@
 "use client";
 
-import { BookOpen, Bot, CheckCircle2, Loader2, Plus, Sparkles, XCircle } from "lucide-react";
+import { BookOpen, Bot, CheckCircle2, Hourglass, Loader2, Plus, Sparkles, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import { api, getSession } from "@/lib/api";
 import type { Alert, Review } from "@/lib/types";
 import { Button, PriorityBadge, slaText } from "./ui";
 
@@ -13,6 +13,11 @@ export function AlertReview({ alert, onDone }: { alert: Alert; onDone: () => voi
   const [custom, setCustom] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  // Physicians approve; coordinators triage. Sessions from before this flag existed default to the old behaviour (the server enforces it either way).
+  const [approver, setApprover] = useState(true);
+  useEffect(() => {
+    setApprover(getSession()?.can_approve ?? true);
+  }, []);
 
   useEffect(() => setActions(proposed.map((t) => ({ text: t, on: true }))), [alert.proposal?.actions?.join("|")]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -84,16 +89,16 @@ export function AlertReview({ alert, onDone }: { alert: Alert; onDone: () => voi
       {alert.status !== "completed" && alert.status !== "cancelled" && (
         <div className="mt-4">
           <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-stone-600">
-            <Bot size={14} /> Proposed care-plan actions - draft, edit before approving
+            <Bot size={14} /> Proposed care-plan actions - {approver ? "draft, edit before approving" : "draft for physician review"}
           </div>
           <div className="space-y-1.5">
             {actions.map((a, i) => (
               <label key={i} className="flex cursor-pointer items-start gap-2 rounded-lg border border-stone-200 px-3 py-2 text-sm hover:bg-stone-50">
-                <input type="checkbox" checked={a.on} onChange={() => setActions(actions.map((x, j) => (j === i ? { ...x, on: !x.on } : x)))} className="mt-0.5 accent-teal-700" />
+                <input type="checkbox" checked={a.on} disabled={!approver} onChange={() => setActions(actions.map((x, j) => (j === i ? { ...x, on: !x.on } : x)))} className="mt-0.5 accent-teal-700" />
                 <span className="text-stone-800">{a.text}</span>
               </label>
             ))}
-            <div className="flex gap-2">
+            {approver && <div className="flex gap-2">
               <input
                 value={custom}
                 onChange={(e) => setCustom(e.target.value)}
@@ -109,7 +114,7 @@ export function AlertReview({ alert, onDone }: { alert: Alert; onDone: () => voi
               >
                 <Plus size={14} /> Add
               </Button>
-            </div>
+            </div>}
           </div>
           {err && <p className="mt-2 text-sm text-red-700">{err}</p>}
           <div className="mt-4 flex flex-wrap justify-end gap-2">
@@ -118,12 +123,20 @@ export function AlertReview({ alert, onDone }: { alert: Alert; onDone: () => voi
                 Acknowledge
               </Button>
             )}
-            <Button variant="secondary" onClick={() => act("dismiss")} disabled={!!busy}>
-              <XCircle size={16} /> Dismiss
-            </Button>
-            <Button onClick={() => act("approve")} disabled={!!busy || !actions.some((a) => a.on)}>
-              {busy === "approve" ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />} Approve &amp; notify patient
-            </Button>
+            {approver ? (
+              <>
+                <Button variant="secondary" onClick={() => act("dismiss")} disabled={!!busy}>
+                  <XCircle size={16} /> Dismiss
+                </Button>
+                <Button onClick={() => act("approve")} disabled={!!busy || !actions.some((a) => a.on)}>
+                  {busy === "approve" ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />} Approve &amp; notify patient
+                </Button>
+              </>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                <Hourglass size={15} /> Awaiting physician approval
+              </span>
+            )}
           </div>
         </div>
       )}

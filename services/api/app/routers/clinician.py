@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from .. import clinical, db
 from ..agents import runtime
 from ..agents.prompts import CLINICIAN_SYSTEM
-from ..auth import User, require
+from ..auth import User, can_approve, require
 from ..mcp_servers import SourceRegistry, clinician_gateway
 from ..rules.engine import CATALOG
 from ..workflows import escalation
@@ -69,6 +69,8 @@ class Decision(BaseModel):
 
 @router.post("/alerts/{task_id}/decision")
 async def decide(task_id: str, d: Decision, user: User = Clinician) -> dict:
+    if not can_approve(user):
+        raise HTTPException(403, "Only a physician can approve or dismiss clinical actions.")
     task = await clinical.get_task(task_id)
     if task["status"] in ("completed", "cancelled"):
         raise HTTPException(409, "Alert already closed")

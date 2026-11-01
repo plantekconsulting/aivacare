@@ -42,6 +42,7 @@ All data is synthetic. Open four browser tabs/devices before you start:
   - **Copilot review**: the headline, bullets with exact values, and citations to the LiverWell fibrosis pathway [P#].
   - **Proposed actions**, a draft only: untick one, add "Repeat liver panel in 4 weeks".
 - In the Copilot panel ask **"What changed in the last 90 days?"**. It answers using governed MCP tools.
+- *(Optional)* Show the same alert as **Sam Lee, RN** (care coordinator): Sam can triage and acknowledge but sees "Awaiting physician approval". The coordinator prepares the case, and only the physician signs off.
 - Click **Approve & notify patient**. This is the human-in-the-loop step: nothing changed until a physician approved.
 
 ## 6. Closing the loop (30 seconds), on screen A
