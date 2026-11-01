@@ -48,7 +48,10 @@ export function Chat({
   const bottom = useRef<HTMLDivElement>(null);
   const busy = status === "submitted" || status === "streaming";
 
-  useEffect(() => bottom.current?.scrollIntoView({ behavior: "smooth", block: "end" }), [messages]);
+  // Block body on purpose: newer browsers return a Promise from scrollIntoView, which React would call as a cleanup.
+  useEffect(() => {
+    bottom.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages]);
 
   const send = (text: string) => {
     if (!text.trim() || busy) return;
