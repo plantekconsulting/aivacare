@@ -1,5 +1,6 @@
 """Adapts agent events to the Vercel AI SDK UI message stream protocol (SSE), consumed by useChat()."""
 import json
+import re
 import time
 import uuid
 from collections import defaultdict, deque
@@ -45,14 +46,25 @@ def _sse(obj: dict) -> str:
     return f"data: {json.dumps(obj)}\n\n"
 
 
+def _shown_sources(sources: list[dict], text: str) -> list[dict]:
+    """Sources the answer cites ([S1]...); if it cites none, one per document."""
+    cited = set(re.findall(r"\bS\d+\b", text))
+    if picked := [s for s in sources if s["id"] in cited]:
+        return picked
+    seen: set[str] = set()
+    return [s for s in sources if not (s["title"] in seen or seen.add(s["title"]))]
+
+
 def ui_stream(events: AsyncIterator[dict], sources_fn=lambda: []) -> StreamingResponse:
     async def gen():
         text_id = f"t-{uuid.uuid4().hex[:8]}"
+        full = ""
         yield _sse({"type": "start", "messageId": f"m-{uuid.uuid4().hex[:10]}"})
         yield _sse({"type": "text-start", "id": text_id})
         try:
             async for ev in events:
                 if ev["type"] == "text":
+                    full += ev["delta"]
                     yield _sse({"type": "text-delta", "id": text_id, "delta": ev["delta"]})
                 elif ev["type"] == "tool":
                     yield _sse({"type": "data-tool", "id": f"{ev['name']}", "data": {"label": ev["label"], "status": ev["status"]}})
@@ -60,7 +72,7 @@ def ui_stream(events: AsyncIterator[dict], sources_fn=lambda: []) -> StreamingRe
                     yield _sse({"type": "text-delta", "id": text_id, "delta": ev["message"]})
         finally:
             yield _sse({"type": "text-end", "id": text_id})
-            for s in sources_fn():
+            for s in _shown_sources(sources_fn(), full):
                 yield _sse({"type": "data-source", "id": s["id"], "data": s})
             yield _sse({"type": "finish", "finishReason": "stop"})
             yield "data: [DONE]\n\n"
