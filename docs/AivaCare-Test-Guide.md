@@ -136,6 +136,8 @@ Please **don't** log these as defects; they are deliberate for the prototype:
 - Live updates fall back to refreshing every 5 seconds on networks that block streaming.
 - SLA re-escalation, reminders and a threshold editor are planned for the pilot, not the demo.
 - Clinical content and thresholds are demo values, not clinically signed off.
+- **Usage limits** protect the Claude budget: chat messages up to 2,000 characters and 30 per minute per persona; 10 report uploads per hour; a daily cap on AI calls (when reached, AI features switch to simpler non-AI fallbacks until the next day).
+- **10 wrong access codes from one network lock that network out for 15 minutes.** Colleagues on the same office Wi-Fi share this limit, so type the code carefully.
 
 **Do** log: wrong numbers, missing or wrong citations, an AI answer that diagnoses or changes medication, errors or blank screens, slow responses well beyond the times in section 1, and anything that would embarrass us in front of a clinic audience.
 

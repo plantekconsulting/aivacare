@@ -313,7 +313,7 @@ When no approved content matches, the assistant says so and offers to contact th
 | Identity | Demo personas, signed JWT, role checks | OIDC SSO (e.g. Keycloak or Identity Platform), MFA for clinicians, SMART on FHIR launch from the EMR |
 | Data protection | Synthetic data only, HTTPS | Encryption at rest with customer-managed keys, PHI redaction in logs, minimum-necessary data sent to the LLM |
 | AI safety | Red-flag bypass, scope and injection classifier, citations, draft-only clinical writes | Plus evaluation suites in CI, red-team tests, sampled clinician review |
-| Secrets and LLM credentials | Claude API key in a root-only env file on the VM; workspace spend cap; access-code gate on sign-in | Workload Identity Federation (short-lived tokens issued to the service's cloud identity, no static API keys); Secret Manager for remaining secrets |
+| Secrets and LLM credentials | Claude API key in a root-only env file on the VM; workspace spend cap; access-code gate with lockout after repeated failures; cost guards (chat rate and length limits, upload rate and page limits, daily AI call budget with non-AI fallbacks) | Workload Identity Federation (short-lived tokens issued to the service's cloud identity, no static API keys); Secret Manager for remaining secrets |
 | Audit | Audit log table | FHIR AuditEvent and Provenance, immutable log storage |
 | Regulatory | Not applicable (demo) | HIPAA safeguards and BAAs (hosting and LLM provider); non-device CDS positioning under FDA guidance; ONC HTI-1 transparency |
 
