@@ -18,7 +18,7 @@
 - Optionally, a phone for the mobile checks (section 7).
 - The team access code.
 
-**How sign-in works.** Open the web app, enter the access code once, then click a persona card. To switch persona, click **Sign out** (top right) and pick another card. A different persona in a second window? Use a separate browser profile or an Incognito window, because a browser window holds one sign-in at a time.
+**How sign-in works.** Open the web app, enter the access code once, then click a persona card. To switch persona, click the **sign-out icon** (top right, next to the name) and pick another card. A different persona in a second window? Use a separate browser profile or an Incognito window, because a browser window holds one sign-in at a time.
 
 | Persona | Role | Lands on |
 |---|---|---|
