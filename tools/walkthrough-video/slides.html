@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; color: #1c1917; }
+  .slide { width: 1440px; height: 810px; padding: 72px 96px; background: #fafaf9; position: relative; overflow: hidden; display: none; }
+  .slide.on { display: block; }
+  .brand { display: flex; align-items: center; gap: 14px; font-weight: 600; color: #115e59; font-size: 22px; }
+  .logo { width: 44px; height: 44px; border-radius: 12px; background: #0f766e; color: #fff; display: grid; place-items: center; font-size: 24px; font-weight: 700; }
+  h1 { font-size: 64px; line-height: 1.1; margin: 120px 0 18px; color: #134e4a; letter-spacing: -1px; }
+  h2 { font-size: 44px; margin: 36px 0 28px; color: #134e4a; letter-spacing: -0.5px; }
+  .sub { font-size: 28px; color: #57534e; }
+  .foot { position: absolute; left: 96px; bottom: 48px; font-size: 18px; color: #78716c; }
+  .slide > *:not(.accent):not(.foot) { position: relative; z-index: 1; }
+  .accent { z-index: 0; position: absolute; right: -120px; top: -120px; width: 520px; height: 520px; border-radius: 50%; background: radial-gradient(circle, #ccfbf1 0%, #fafaf9 70%); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .card { background: #fff; border: 1px solid #e7e5e4; border-radius: 18px; padding: 26px 30px; }
+  .card h3 { margin: 0 0 12px; font-size: 26px; color: #115e59; }
+  .card li { font-size: 22px; margin: 8px 0; color: #292524; }
+  .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 10px; }
+  .three .card { text-align: center; padding: 34px 24px; }
+  .ico { font-size: 52px; }
+  .three .card h3 { margin-top: 12px; }
+  .three .card p { font-size: 20px; color: #57534e; margin: 6px 0 0; }
+  .strip { margin-top: 30px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .pill { background: #f0fdfa; border: 1px solid #99f6e4; color: #134e4a; border-radius: 999px; padding: 10px 20px; font-size: 20px; }
+  .principle { font-size: 30px; font-weight: 600; color: #0f766e; margin: -8px 0 26px; }
+  .arch { display: grid; grid-template-columns: 210px 1fr; gap: 10px 18px; align-items: stretch; }
+  .lbl { font-size: 18px; font-weight: 600; color: #57534e; display: flex; align-items: center; justify-content: flex-end; text-align: right; }
+  .row { display: flex; gap: 12px; }
+  .box { flex: 1; background: #fff; border: 2px solid #0f766e; border-radius: 12px; padding: 12px 10px; text-align: center; font-size: 19px; }
+  .box small { display: block; color: #78716c; font-size: 15px; }
+  .box.ai { background: #f0fdfa; }
+  .box.det { border-color: #a8a29e; }
+  .box.hitl { border-color: #eb6834; background: #fff7ed; }
+  .note { margin-top: 18px; font-size: 18px; color: #57534e; }
+</style></head>
+<body>
+
+<div class="slide" id="s01"><div class="accent"></div>
+  <div class="brand"><div class="logo">A</div>AivaCare · by LiverWell Clinic</div>
+  <h1>Agentic AI continuous care<br>for fatty liver disease</h1>
+  <div class="sub">Prototype walkthrough - what's built, how it works, and every persona's view</div>
+  <div class="foot">All patients and data are synthetic. Not for clinical use.</div>
+</div>
+
+<div class="slide" id="s02"><div class="accent"></div>
+  <div class="brand"><div class="logo">A</div>The problem</div>
+  <h2>John Miller, 48 - MASLD - seen every 3 months</h2>
+  <div class="cols">
+    <div class="card"><h3>Today: appointment-based care</h3><ul>
+      <li>Labs, records and Apple Watch data in separate systems</li>
+      <li>Nobody watches the trend between visits</li>
+      <li>Concerning changes noticed late</li>
+      <li>Follow-ups coordinated by hand</li></ul></div>
+    <div class="card"><h3>Goal: continuous care</h3><ul>
+      <li>Monitor patients between visits</li>
+      <li>Personalized, clinician-approved guidance</li>
+      <li>Right findings to the care team, on time</li>
+      <li>Physicians stay in control</li></ul></div>
+  </div>
+</div>
+
+<div class="slide" id="s03"><div class="accent"></div>
+  <div class="brand"><div class="logo">A</div>What we built</div>
+  <h2>Three entry points, one platform</h2>
+  <div class="three">
+    <div class="card"><div class="ico">📱</div><h3>Patient mobile app</h3><p>Trends, AI assistant, care-team updates</p></div>
+    <div class="card"><div class="ico">💻</div><h3>Patient web portal</h3><p>Same, plus lab-report upload</p></div>
+    <div class="card"><div class="ico">🩺</div><h3>Clinician dashboard</h3><p>Alert queue, Patient 360, Copilot, approvals</p></div>
+  </div>
+  <div class="strip">
+    <span class="pill">Google Cloud</span><span class="pill">HL7 FHIR R4 record</span><span class="pill">Claude AI</span>
+    <span class="pill">Synthetic data</span><span class="pill">Presenter controls</span>
+  </div>
+</div>
+
+<div class="slide" id="s04">
+  <div class="brand"><div class="logo">A</div>Under the hood</div>
+  <h2 style="margin-bottom:12px">How it works</h2>
+  <div class="principle">Rules decide · AI explains · Physicians approve</div>
+  <div class="arch">
+    <div class="lbl">Experience</div>
+    <div class="row"><div class="box">Mobile app<small>Expo</small></div><div class="box">Patient portal<small>Next.js</small></div><div class="box">Clinician dashboard<small>Next.js</small></div></div>
+    <div class="lbl">AI agents (Claude)</div>
+    <div class="row"><div class="box ai">Patient Care Agent<small>patient-scoped</small></div><div class="box ai">Clinician Copilot<small>panel-scoped</small></div><div class="box ai">Guardrails<small>red-flag bypass</small></div></div>
+    <div class="lbl">Governed tools (MCP)</div>
+    <div class="row"><div class="box">fhir</div><div class="box">knowledge<small>RAG + citations</small></div><div class="box">insights</div><div class="box">workflow</div><div class="box">document</div></div>
+    <div class="lbl">Deterministic core</div>
+    <div class="row"><div class="box det">Rules engine<small>FIB-4, ALT, weight…</small></div><div class="box hitl">Escalation workflow<small>LangGraph · waits for physician</small></div><div class="box det">Notifications</div></div>
+    <div class="lbl">Data</div>
+    <div class="row"><div class="box det">HAPI FHIR R4<small>system of record</small></div><div class="box det">PostgreSQL + pgvector<small>approved content, audit</small></div></div>
+  </div>
+</div>
+
+<div class="slide" id="s15"><div class="accent"></div>
+  <div class="brand"><div class="logo">A</div>AivaCare</div>
+  <h1 style="margin-top:90px">Continuous care,<br>physicians in control</h1>
+  <div class="strip" style="margin-top:36px">
+    <span class="pill">Continuous monitoring</span><span class="pill">Grounded patient support</span><span class="pill">Physician-approved interventions</span><span class="pill">Open standards</span>
+  </div>
+  <div class="card" style="margin-top:40px;max-width:900px"><h3>Next steps</h3><ul>
+    <li>Clinical sign-off of rules and content</li>
+    <li>Integrate the clinic's EMR and lab feeds</li>
+    <li>Pilot with consenting patients</li></ul></div>
+</div>
+
+<script>
+  const id = new URLSearchParams(location.search).get("s");
+  document.getElementById(id).classList.add("on");
+</script>
+</body></html>

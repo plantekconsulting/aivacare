@@ -12,3 +12,6 @@ __pycache__/
 .DS_Store
 .pytest_cache/
 .vscode/
+
+# Rendered videos (large binaries)
+media/
