@@ -25,6 +25,7 @@ export const setAccessCode = (c: string) => localStorage.setItem("aivacare.code"
 export async function login(persona: string): Promise<Session> {
   const r = await fetch(`${API_URL}/login/${persona}?code=${encodeURIComponent(getAccessCode())}`, { method: "POST" });
   if (r.status === 403) throw new Error("Invalid access code");
+  if (r.status === 429) throw new Error("Too many attempts - try again in 15 minutes.");
   if (!r.ok) throw new Error("Could not reach the AivaCare API.");
   const s = (await r.json()) as Session;
   setSession(s);

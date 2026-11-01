@@ -32,5 +32,5 @@ async def advance(body: Advance) -> dict:
 
 @router.get("/status")
 async def status() -> dict:
-    return {"fhir": await fhir.ready(), "llm_configured": llm.available(),
+    return {"fhir": await fhir.ready(), "llm_configured": llm.configured(), "llm_budget_ok": llm.available(), **llm.usage(),
             "model_main": settings.model_main, "model_fast": settings.model_fast}

@@ -1,4 +1,5 @@
 """Patient-facing API (mobile app + web portal). Every route is scoped to the signed-in patient."""
+import re
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
@@ -10,11 +11,17 @@ from ..agents.prompts import PATIENT_SYSTEM
 from ..auth import User, require
 from ..mcp_servers import SourceRegistry, patient_gateway, symptom_hit
 from ..workflows import escalation
-from .chat_stream import history_from_ui, rate_limit, single_message, ui_stream
+from ..config import settings
+from .chat_stream import history_from_ui, limit, rate_limit, single_message, ui_stream
 
 router = APIRouter(prefix="/patient")
 Patient = Depends(require("patient"))
 ALLOWED_TYPES = {"application/pdf", "image/png", "image/jpeg", "image/webp"}
+
+
+def _pdf_pages(data: bytes) -> int:
+    """Rough page count (page objects in the file) - enough to stop oversized documents."""
+    return len(re.findall(rb"/Type\s*/Page(?!s)", data))
 
 
 @router.get("/home")
@@ -67,6 +74,9 @@ async def upload(file: UploadFile, user: User = Patient) -> dict:
     data = await file.read()
     if len(data) > 15 * 1024 * 1024:
         raise HTTPException(413, "File too large (max 15 MB).")
+    if file.content_type == "application/pdf" and _pdf_pages(data) > settings.max_upload_pages:
+        raise HTTPException(413, f"Please upload a report of at most {settings.max_upload_pages} pages.")
+    limit(f"upload:{user.sub}", settings.uploads_per_hour, 3600, "Upload limit reached - please try again later.")
     rows = await db.fetch(
         "INSERT INTO uploads (patient_id, filename, media_type, data) VALUES (%s, %s, %s, %s) RETURNING id",
         user.sub, file.filename, file.content_type, data,

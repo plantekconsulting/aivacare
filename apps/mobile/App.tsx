@@ -221,7 +221,7 @@ function ChatScreen() {
         )}
       </ScrollView>
       <View style={s.inputRow}>
-        <TextInput value={input} onChangeText={setInput} placeholder="Ask a question…" style={[s.input, { flex: 1 }]} onSubmitEditing={() => send(input)} returnKeyType="send" />
+        <TextInput value={input} onChangeText={setInput} placeholder="Ask a question…" maxLength={2000} style={[s.input, { flex: 1 }]} onSubmitEditing={() => send(input)} returnKeyType="send" />
         <Pressable style={[s.button, { paddingHorizontal: 16 }, busy && { opacity: 0.5 }]} disabled={busy} onPress={() => send(input)}>
           <Text style={s.buttonText}>Send</Text>
         </Pressable>

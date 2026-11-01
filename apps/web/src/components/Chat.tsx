@@ -10,6 +10,15 @@ import { API_URL, getSession } from "@/lib/api";
 type Source = { id: string; title: string; section: string; version: string; approved_by: string; excerpt: string };
 type ToolStatus = { label: string; status: "running" | "done" | "error" };
 
+/** API errors arrive as FastAPI JSON ({"detail": "..."}); show just the message. */
+function errorText(message: string) {
+  try {
+    return JSON.parse(message).detail ?? message;
+  } catch {
+    return message || "Something went wrong.";
+  }
+}
+
 export function Chat({
   endpoint,
   suggestions,
@@ -111,7 +120,7 @@ export function Chat({
             <Loader2 size={14} className="animate-spin" /> Thinking…
           </div>
         )}
-        {error && <div className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-800">{error.message || "Something went wrong."}</div>}
+        {error && <div className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-800">{errorText(error.message)}</div>}
         <div ref={bottom} />
       </div>
       <form
@@ -125,6 +134,7 @@ export function Chat({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={placeholder}
+          maxLength={2000}
           className="flex-1 rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
         />
         <button type="submit" disabled={busy || !input.trim()} className="rounded-xl bg-teal-700 px-3 text-white disabled:opacity-40" aria-label="Send">

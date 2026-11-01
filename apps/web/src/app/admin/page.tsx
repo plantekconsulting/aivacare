@@ -6,7 +6,7 @@ import { useSession } from "@/components/Shell";
 import { Button, Card, Logo } from "@/components/ui";
 import { api, onLiveEvent, type LiveEvent } from "@/lib/api";
 
-type Status = { fhir: boolean; llm_configured: boolean; model_main: string; model_fast: string };
+type Status = { fhir: boolean; llm_configured: boolean; llm_budget_ok: boolean; calls_today: number; daily_limit: number; model_main: string; model_fast: string };
 
 export default function Admin() {
   const session = useSession(["admin"]);
@@ -49,6 +49,11 @@ export default function Admin() {
         <span className={`rounded-lg px-3 py-1.5 ${status?.llm_configured ? "bg-green-50 text-green-900" : "bg-amber-50 text-amber-900"}`}>
           Claude API: {status?.llm_configured ? `configured (${status.model_main} / ${status.model_fast})` : "NOT configured - AI features use fallbacks"}
         </span>
+        {status?.llm_configured && (
+          <span className={`rounded-lg px-3 py-1.5 ${status.llm_budget_ok ? "bg-stone-100 text-stone-800" : "bg-red-50 text-red-900"}`}>
+            AI calls today: {status.calls_today} / {status.daily_limit}{status.llm_budget_ok ? "" : " - daily cap reached, AI features use fallbacks"}
+          </span>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

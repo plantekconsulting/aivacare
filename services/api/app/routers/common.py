@@ -1,6 +1,8 @@
 """Auth, personas and the live event stream."""
 import asyncio
 import hmac
+import time
+from collections import defaultdict, deque
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
@@ -11,6 +13,13 @@ from ..config import settings
 from ..seed.generate import PERSONAS
 
 router = APIRouter()
+_login_failures: dict[str, deque] = defaultdict(deque)
+
+
+def _client_ip(request: Request) -> str:
+    # Caddy replaces any client-sent X-Forwarded-For with the real peer address, so the last entry is trustworthy.
+    fwd = request.headers.get("x-forwarded-for", "")
+    return fwd.split(",")[-1].strip() if fwd else (request.client.host if request.client else "unknown")
 
 
 @router.get("/personas")
@@ -19,10 +28,20 @@ async def personas() -> list[dict]:
 
 
 @router.post("/login/{persona}")
-async def login(persona: str, code: str = "") -> dict:
-    """Team access gate: when DEMO_ACCESS_CODE is set, sign-in requires it."""
-    if settings.access_code and not hmac.compare_digest(code, settings.access_code):
-        raise HTTPException(403, "Invalid access code")
+async def login(persona: str, request: Request, code: str = "") -> dict:
+    """Team access gate: when DEMO_ACCESS_CODE is set, sign-in requires it.
+    Wrong codes are counted per client IP; too many and that IP is locked out for 15 minutes."""
+    if settings.access_code:
+        ip = _client_ip(request)
+        failures = _login_failures[ip]
+        now = time.monotonic()
+        while failures and now - failures[0] > 900:
+            failures.popleft()
+        if len(failures) >= settings.login_failures_per_15min:
+            raise HTTPException(429, "Too many attempts - try again in 15 minutes.")
+        if not hmac.compare_digest(code, settings.access_code):
+            failures.append(now)
+            raise HTTPException(403, "Invalid access code")
     if persona not in PERSONAS:
         raise HTTPException(404, "Unknown persona")
     p = PERSONAS[persona]

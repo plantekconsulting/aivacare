@@ -13,6 +13,12 @@ class Settings:
     cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",")]
     chat_rate_per_minute = int(os.getenv("CHAT_RATE_PER_MINUTE", "30"))
     access_code = os.getenv("DEMO_ACCESS_CODE", "")
+    # Cost guards for the shared demo (the Console spend limit is the hard ceiling).
+    max_message_chars = int(os.getenv("MAX_MESSAGE_CHARS", "2000"))
+    uploads_per_hour = int(os.getenv("UPLOADS_PER_HOUR", "10"))
+    max_upload_pages = int(os.getenv("MAX_UPLOAD_PAGES", "10"))
+    login_failures_per_15min = int(os.getenv("LOGIN_FAILURES_PER_15MIN", "10"))
+    ai_daily_call_limit = int(os.getenv("AI_DAILY_CALL_LIMIT", "1000"))
 
 
 settings = Settings()

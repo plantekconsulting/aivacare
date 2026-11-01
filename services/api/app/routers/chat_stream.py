@@ -15,17 +15,28 @@ HEADERS = {"x-vercel-ai-ui-message-stream": "v1", "Cache-Control": "no-cache", "
 _calls: dict[str, deque] = defaultdict(deque)
 
 
-def rate_limit(sub: str) -> None:
-    now, q = time.monotonic(), _calls[sub]
-    while q and now - q[0] > 60:
+def limit(key: str, max_calls: int, window_s: int, message: str) -> None:
+    """Sliding-window limiter (in-process; fine for the single demo VM)."""
+    now, q = time.monotonic(), _calls[key]
+    while q and now - q[0] > window_s:
         q.popleft()
-    if len(q) >= settings.chat_rate_per_minute:
-        raise HTTPException(429, "Too many messages - please wait a moment.")
+    if len(q) >= max_calls:
+        raise HTTPException(429, message)
     q.append(now)
 
 
+def rate_limit(sub: str) -> None:
+    limit(f"chat:{sub}", settings.chat_rate_per_minute, 60, "Too many messages - please wait a moment.")
+
+
 def history_from_ui(messages: list[dict], max_turns: int = 12) -> list[dict]:
-    """UIMessage[] -> Anthropic messages (text only). Must end with a user turn."""
+    """UIMessage[] -> Anthropic messages (text only). Must end with a user turn.
+    The history comes from the client, so every turn is length-capped before it reaches Claude."""
+    cap = settings.max_message_chars
+    if messages:
+        last = "".join(p.get("text", "") for p in messages[-1].get("parts", []) if p.get("type") == "text")
+        if len(last) > cap:
+            raise HTTPException(413, f"Please keep messages under {cap} characters.")
     out = []
     for m in messages[-max_turns:]:
         if m.get("role") not in ("user", "assistant"):
@@ -33,6 +44,7 @@ def history_from_ui(messages: list[dict], max_turns: int = 12) -> list[dict]:
         text = "".join(p.get("text", "") for p in m.get("parts", []) if p.get("type") == "text").strip()
         if not text:
             continue
+        text = text[: cap * 2]
         if out and out[-1]["role"] == m["role"]:
             out[-1]["content"] += "\n\n" + text
         else:
