@@ -5,12 +5,12 @@ services:
     image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: aivacare
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aivacare}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in infra/.env}
       POSTGRES_DB: aivacare
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U aivacare"]
       interval: 5s
@@ -34,7 +34,7 @@ services:
     build: ../services/api
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://aivacare:${POSTGRES_PASSWORD:-aivacare}@postgres:5432/aivacare
+      DATABASE_URL: postgresql://aivacare:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in infra/.env}@postgres:5432/aivacare
       FHIR_BASE_URL: http://fhir:8080/fhir
     depends_on:
       postgres:

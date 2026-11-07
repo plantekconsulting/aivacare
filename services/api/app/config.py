@@ -5,7 +5,9 @@ APP_DIR = Path(__file__).parent
 
 
 class Settings:
-    database_url = os.getenv("DATABASE_URL", "postgresql://aivacare:aivacare@localhost:5432/aivacare")
+    database_url = os.getenv(
+        "DATABASE_URL", f"postgresql://aivacare:{os.getenv('POSTGRES_PASSWORD', '')}@localhost:5432/aivacare"
+    )
     fhir_base_url = os.getenv("FHIR_BASE_URL", "http://localhost:8090/fhir").rstrip("/")
     model_main = os.getenv("MODEL_MAIN", "claude-opus-5-5")
     model_fast = os.getenv("MODEL_FAST", "claude-haiku-5-5")
