@@ -1,0 +1,255 @@
+1
+00:00:00,200 --> 00:00:05,688
+This is AivaCare, an agentic AI platform for continuous care of fatty liver disease,
+
+2
+00:00:05,738 --> 00:00:08,984
+built as a working prototype for LiverWell Clinic.
+
+3
+00:00:09,034 --> 00:00:14,192
+In the next five minutes, I'll show what we built, how it works under the hood,
+
+4
+00:00:14,242 --> 00:00:17,686
+and the experience from each persona's point of view.
+
+5
+00:00:18,636 --> 00:00:23,613
+Today, patients like John Miller, forty-eight, with fatty liver disease,
+
+6
+00:00:23,663 --> 00:00:26,545
+see their hepatologist every three months.
+
+7
+00:00:26,595 --> 00:00:28,779
+Between visits, his lab results,
+
+8
+00:00:28,829 --> 00:00:35,412
+medical records and Apple Watch data sit in separate systems, and nobody is watching the trend.
+
+9
+00:00:35,462 --> 00:00:37,925
+Concerning changes are noticed late.
+
+10
+00:00:37,975 --> 00:00:44,069
+AivaCare moves the clinic to continuous care: monitor between visits, guide the patient,
+
+11
+00:00:44,119 --> 00:00:49,235
+and bring the right findings to the care team, with physicians in control.
+
+12
+00:00:50,185 --> 00:00:56,419
+We built three entry points on one platform: a patient mobile app, a patient web portal,
+
+13
+00:00:56,469 --> 00:01:01,131
+and a clinician care dashboard, plus presenter controls for demos.
+
+14
+00:01:01,181 --> 00:01:07,415
+It runs on Google Cloud with synthetic data, uses a FHIR record as the system of record,
+
+15
+00:01:07,465 --> 00:01:09,271
+and uses Claude as the AI.
+
+16
+00:01:10,221 --> 00:01:16,577
+Under the hood, the principle is simple: rules decide, AI explains, physicians approve.
+
+17
+00:01:16,627 --> 00:01:20,994
+A deterministic rules engine watches labs and wearable data,
+
+18
+00:01:21,044 --> 00:01:23,719
+for example a FIB-4 score above 2.67.
+
+19
+00:01:23,769 --> 00:01:29,904
+Two Claude agents handle conversation: a Patient Care Agent and a Clinician Copilot.
+
+20
+00:01:29,954 --> 00:01:36,088
+They reach data only through governed MCP tool servers, bound to the signed-in user.
+
+21
+00:01:36,138 --> 00:01:41,610
+Guidance comes from clinician-approved content through RAG, with citations.
+
+22
+00:01:41,660 --> 00:01:47,869
+And a LangGraph workflow manages each escalation, pausing until a physician approves.
+
+23
+00:01:48,819 --> 00:01:50,358
+Let's start with John.
+
+24
+00:01:50,408 --> 00:01:56,280
+His home page combines lab results from the clinic with daily data from his watch.
+
+25
+00:01:56,330 --> 00:02:00,251
+His ALT came down from 82 to 44, but it's rising again,
+
+26
+00:02:00,301 --> 00:02:03,573
+while his weight creeps up and his steps fall.
+
+27
+00:02:03,623 --> 00:02:06,895
+His FIB-4 score is still in the low-risk band.
+
+28
+00:02:07,845 --> 00:02:12,473
+John asks the assistant: why is my ALT high, and what should I eat?
+
+29
+00:02:12,523 --> 00:02:17,849
+Watch the steps: it checks his trend data and searches the approved guidance.
+
+30
+00:02:17,899 --> 00:02:23,714
+The answer quotes his exact values, and each recommendation cites a LiverWell guide,
+
+31
+00:02:23,764 --> 00:02:26,786
+so John only gets clinician-approved advice.
+
+32
+00:02:27,736 --> 00:02:30,067
+John can also upload a lab report.
+
+33
+00:02:30,117 --> 00:02:35,529
+Claude reads the PDF, extracts each result with its units and reference range,
+
+34
+00:02:35,579 --> 00:02:37,770
+and the platform validates them.
+
+35
+00:02:37,820 --> 00:02:41,971
+John confirms the values before they're saved to his record,
+
+36
+00:02:42,021 --> 00:02:44,562
+with provenance back to the document.
+
+37
+00:02:45,512 --> 00:02:48,844
+Now, new results arrive from the lab feed.
+
+38
+00:02:48,894 --> 00:02:54,482
+The rules engine calculates a FIB-4 of 2.87, above the 2.67 threshold,
+
+39
+00:02:54,532 --> 00:03:01,649
+and a high-priority alert appears live in the care team's queue, with a 24-hour deadline.
+
+40
+00:03:01,699 --> 00:03:05,273
+Seconds later, the Copilot's review is ready.
+
+41
+00:03:06,223 --> 00:03:09,274
+Sam, the care coordinator, triages the queue.
+
+42
+00:03:09,324 --> 00:03:13,132
+Sam sees the full picture and can acknowledge the alert,
+
+43
+00:03:13,182 --> 00:03:16,646
+but clinical decisions are reserved for physicians,
+
+44
+00:03:16,696 --> 00:03:20,160
+so the actions show as awaiting physician approval.
+
+45
+00:03:21,110 --> 00:03:24,055
+Doctor Patel opens the Patient 360 view.
+
+46
+00:03:24,105 --> 00:03:29,296
+She sees the rule evidence, the trends, and the AI review: a headline,
+
+47
+00:03:29,346 --> 00:03:34,912
+findings with exact values, and citations to the clinic's fibrosis pathway.
+
+48
+00:03:34,962 --> 00:03:39,255
+She asks the Copilot what changed in the last ninety days.
+
+49
+00:03:39,305 --> 00:03:45,095
+It pulls the record through governed tools, and answers with dates and values.
+
+50
+00:03:46,045 --> 00:03:49,571
+The proposed care-plan actions are only drafts.
+
+51
+00:03:49,621 --> 00:03:55,659
+Doctor Patel removes one, adds a repeat liver panel in four weeks, and approves.
+
+52
+00:03:55,709 --> 00:04:01,213
+Only now does anything change: the care plan is updated, the task closes,
+
+53
+00:04:01,263 --> 00:04:03,192
+and every step is audited.
+
+54
+00:04:04,142 --> 00:04:09,969
+Back on John's phone, a plain-language follow-up from his care team has already arrived,
+
+55
+00:04:10,019 --> 00:04:12,640
+and his care plan shows the new actions.
+
+56
+00:04:13,590 --> 00:04:14,950
+Safety comes first.
+
+57
+00:04:15,000 --> 00:04:21,997
+When John writes, my eyes look yellow today, the red-flag guardrail bypasses the AI completely.
+
+58
+00:04:22,047 --> 00:04:28,822
+He gets urgent-care instructions instantly, and a high-priority alert goes to the care team.
+
+59
+00:04:29,772 --> 00:04:34,071
+For governance, clinicians can review the versioned rule catalog,
+
+60
+00:04:34,121 --> 00:04:38,220
+and a full audit trail of every alert, AI review and decision.
+
+61
+00:04:39,170 --> 00:04:44,228
+That's AivaCare: continuous monitoring, grounded AI support for patients,
+
+62
+00:04:44,278 --> 00:04:49,475
+and AI-assisted, physician-approved interventions, built on open standards.
+
+63
+00:04:49,525 --> 00:04:53,814
+The next steps are clinical sign-off of the rules and content,
+
+64
+00:04:53,864 --> 00:04:59,831
+integration with the clinic's EMR and lab feeds, and a pilot with consenting patients.

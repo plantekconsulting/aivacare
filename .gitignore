@@ -13,5 +13,3 @@ __pycache__/
 .pytest_cache/
 .vscode/
 
-# Rendered videos (large binaries)
-media/
